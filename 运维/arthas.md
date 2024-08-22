@@ -43,3 +43,8 @@ trace com.libra.recommend.service.impl.InstallServiceImpl mergeByLocationForGrou
 watch com.libra.feature.controller.FeatureController queryNavType '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams().countryCode' '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams().countryCode != "RU"'  -n 10  -x 3
 watch com.libra.feature.controller.FeatureController queryNavType '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams()' '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams().gaid=="86f50ff6-5c3d-4e89-a9c5-efb560c1998e"'  -n 1  -x 3
 watch libra.domain.device.client.impl.FeatureClientImpl queryNavType '@libra.common.protocol.context.LocalRequestContextHolder@getLocalRequestContext().getAllParamsMap()' '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams().gaid=="86f50ff6-5c3d-4e89-a9c5-efb560c1998e"'  -n 1  -x 3
+
+trace com.libra.feature.service.impl.page.decorate.FreeDataDecorator decorate '@libra.common.protocol.context.LocalRequestContextHolder@getLocalReqCommonParams().getGaid() == "66f7575d-42c2-4a8b-8449-10ca1ad1abe1"'  -n 1
+watch com.transsion.toolmatrix.biz.FlowBiz ipToCountry 'returnObj' 'params[0]=="178.170.197.65"'  -n 1  -x 3
+watch com.transsion.toolmatrix.biz.FlowBiz spListInfo 'params[0]' 'params[0].gaid=="10fae950-f597-440c-988f-3017db074b27"'  -n 5  -x 3
+trace com.transsion.toolmatrix.biz.FlowBiz getSpListInfo 'params[0].gaid=="10fae950-f597-440c-988f-3017db074b27"' -n 5 --skipJDKMethod false 

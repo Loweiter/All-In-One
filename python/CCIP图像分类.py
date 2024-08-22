@@ -112,9 +112,12 @@ def cluster_and_save_images(folder_path: str, output_dir: str,
 
     # 提取每个图像的特征
     features = [ccip_extract_feature(image, model=model) for image in images]
+    # 特征标准化
+    scaler = StandardScaler()
+    features_scaled = scaler.fit_transform(features)
 
     # 聚类
-    cluster_ids = ccip_clustering(features, method='optics_best', eps=None, min_samples=2, model=model)
+    cluster_ids = ccip_clustering(features_scaled, method='optics_best', eps=None, min_samples=2, model=model)
 
     # 调试输出：显示聚类结果
     print("Cluster IDs:", cluster_ids)
