@@ -1,0 +1,53 @@
+SpringFactoriesLoader.loadFactories(JarMode.class,
+				ClassUtils.getDefaultClassLoader());
+
+
+setInitializers((Collection) getSpringFactoriesInstances(ApplicationContextInitializer.class));
+setListeners((Collection) getSpringFactoriesInstances(ApplicationListener.class));
+ApplicationContext 刷新之前，Spring 会调用所有注册的 ApplicationContextInitializer 实例的 initialize 方法。
+ApplicationListener 是一个强大的工具，允许你监听和处理 Spring 应用上下文中的各种事件
+
+
+public class ApolloApplicationContextInitializer implements
+    ApplicationContextInitializer<ConfigurableApplicationContext> , EnvironmentPostProcessor, Ordered {
+
+}
+apollo基于EnvironmentPostProcessor实现了提前暴露
+
+
+BeanFactoryPostProcessor 主要用于在 Spring 容器实例化任何 bean 之前，对 bean 定义进行修改。
+BeanPostProcessor 主要用于在 Spring 容器实例化 bean 之后，在 bean 初始化之前和之后插入自定义逻辑。
+
+
+org.springframework.context.annotation.ConfigurationClassPostProcessor#processConfigBeanDefinitions   扫描路径下的所有类
+ConfigurationClassPostProcessor 是最重要的一个，它负责处理@Configuration类、@Bean方法和@ComponentScan注解。它会解析这些注解并注册相应的Bean定义。
+处理的核心逻辑在
+org.springframework.context.annotation.ConfigurationClassParser#doProcessConfigurationClass
+
+
+生命周期总结
+启动类和注解解析（启动时）：通过 @SpringBootApplication 和 @EnableAutoConfiguration 触发。
+注解解析器（启动时）：@EnableAutoConfiguration 中的 @Import(AutoConfigurationImportSelector.class) 会将 AutoConfigurationImportSelector 注册为一个配置类导入选择器。
+配置类后处理器（启动时）：ConfigurationClassPostProcessor  处理 @Configuration 类和 @Import 注解，调用 AutoConfigurationImportSelector 的 selectImports 方法。
+解析和导入自动配置类（启动时）：从 META-INF/spring.factories 文件中读取候选配置类，应用条件过滤，导入符合条件的配置类。
+注册自动配置类（启动时）：将符合条件的自动配置类注册到 Spring 容器中。
+
+
+
+BeanDefinitionRegistryPostProcessor 和 BeanFactoryPostProcessor:
+调用时机：
+BeanFactoryPostProcessor：在 Bean 定义已经加载到容器中但 Bean 实例尚未创建时被调用。
+BeanDefinitionRegistryPostProcessor：在所有常规的 BeanFactoryPostProcessor 处理之前被调用，允许更早地对 Bean 定义进行操作。
+扩展能力：
+BeanFactoryPostProcessor：主要用于修改已经存在的 Bean 定义或添加新的 Bean 定义。
+BeanDefinitionRegistryPostProcessor：不仅可以修改已经存在的 Bean 定义，还可以动态注册新的 Bean 定义，提供更强的扩展能力。
+接口继承关系:
+BeanFactoryPostProcessor 是一个独立的接口。
+BeanDefinitionRegistryPostProcessor 继承了 BeanFactoryPostProcessor，它不仅需要实现 postProcessBeanDefinitionRegistry 方法，还需要实现 postProcessBeanFactory 方法。
+
+
+ps: BeanDefinitionRegistryPostProcessor在执行过程中已经实例化了，beanFactory.getBean(ppName, BeanDefinitionRegistryPostProcessor.class)
+
+AbstractAutowireCapableBeanFactory 重点！！ 创建Bean是在这里 org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory#doCreateBean
+
+ApplicationContextAwareProcessor  实现了部分Aware的注入
